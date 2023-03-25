@@ -24,31 +24,31 @@ std::cout<< "3" << std::endl;
 game = new Game();
 game->init("Sussy Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1600, 900, false);
 
-const float timeStep = 1/100.0f;
-float accumulator = 0.0f;
-float currentTime = utils::hireTimeInSeconds();
-while (game->checkIfRunning())
-{	
-	int startTicks = SDL_GetTicks();
-	float newTime = utils::hireTimeInSeconds();
-	float frameTime = newTime-currentTime;
-	if (frameTime > 0.25f)
-		frameTime = 0.25f;
-	currentTime = newTime;
-	accumulator += frameTime;
-	
-	while (accumulator >= timeStep) {
-		// Get our controls and events
+const int inputChecksPerSecond = 100;
+const int updatesPerSecond = 50;
+const int rendersPerSecond = 50;
+const float inputChecksIntervalMS = 1000.0f/inputChecksPerSecond;
+const float updatesIntervalMS = 1000.0f/updatesPerSecond;
+const float rendersIntervalMS = 1000.0f/rendersPerSecond;
+long inputChecks = 0;
+long updates = 0;
+long renders = 0;
+while (game->checkIfRunning()) {	
+	float currentTimeMS = utils::hireTimeInMilliseconds();
+	//std::cout << currentTimeMS << " " << updates*updatesIntervalMS << std::endl;
+	if (inputChecks*inputChecksIntervalMS <= currentTimeMS) {
 		game->handleEvents();
-		accumulator -= timeStep;
+		inputChecks++;
 	}
-
-	game->update();
-	game->render();
-
-	int frameTicks = SDL_GetTicks()-startTicks;
-	if (frameTicks < 1000/60.0)
-		SDL_Delay(1000/60.0-frameTicks);
+	if (updates*updatesIntervalMS <= currentTimeMS) {
+		game->update();
+		updates++;
+	}
+	if (renders*rendersIntervalMS <= currentTimeMS) {
+		game->render();
+		renders++;
+	}
+	SDL_Delay(0.1);
 }
 
 game->clean();

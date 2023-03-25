@@ -23,6 +23,14 @@ Element::Element(int xPosition, int yPosition, char characterID) : x(xPosition),
             colorRGB[1] = rand()%41+180;
             colorRGB[2] = 0;
             break;
+        case 'w':
+            type = WATER;
+            colorRGB[0] = 0;
+            colorRGB[1] = 0;
+            colorRGB[2] = rand()%11+215;
+            viscosity = 0.75;
+            break;
+            
     }
 }
 

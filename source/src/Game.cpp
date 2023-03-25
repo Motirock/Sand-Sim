@@ -79,6 +79,36 @@ void Game::handleEvents() {
                     case SDLK_d:
                         rightPressed = true;
                         break;
+                    case SDLK_1:
+                        elementSelected = 1;
+                        break;
+                    case SDLK_2:
+                        elementSelected = 2;
+                        break;
+                    case SDLK_3:
+                        elementSelected = 3;
+                        break;
+                    case SDLK_4:
+                        elementSelected = 4;
+                        break;
+                    case SDLK_5:
+                        elementSelected = 5;
+                        break;
+                    case SDLK_6:
+                        elementSelected = 6;
+                        break;
+                    case SDLK_7:
+                        elementSelected = 7;
+                        break;
+                    case SDLK_8:
+                        elementSelected = 8;
+                        break;
+                    case SDLK_9:
+                        elementSelected = 9;
+                        break;
+                    case SDLK_0:
+                        elementSelected = 10;
+                        break;
                 }
                 break;
             case SDL_KEYUP:
@@ -98,17 +128,55 @@ void Game::handleEvents() {
                         break;
                 }
                 break;
+            case SDL_MOUSEBUTTONDOWN:
+                switch (event.button.button) {
+                    case SDL_BUTTON_LEFT:
+                        mouseLeftPressed = true;
+                        break;
+                }
+                break;
+            case SDL_MOUSEBUTTONUP:
+                switch (event.button.button) {
+                    case SDL_BUTTON_LEFT:
+                        mouseLeftPressed = false;
+                        break;
+                }
+                break;
             default:
                 break;
-        }
-        if (event.button.button == SDL_BUTTON(SDL_BUTTON_LEFT)) {
-            grid->setElement(mouseX/10, mouseY/10, new Element(mouseX/10, mouseY/10, 'S'));
         }
     }
 };
 
 void Game::update() {
     SDL_GetMouseState(&mouseX, &mouseY);
+    if (mouseLeftPressed) {
+        char elementSelectedChar;
+        switch (elementSelected) {
+            case 1:
+                elementSelectedChar = 's';
+                break;
+            case 2:
+                elementSelectedChar = 'S';
+                break;
+            case 3:
+                elementSelectedChar = 'w';
+                break;
+            default:
+                elementSelectedChar = '-';
+        }
+        grid->setElement(mouseX/10-1, mouseY/10-1, new Element(mouseX/10-1, mouseY/10-1, elementSelectedChar));
+        grid->setElement(mouseX/10, mouseY/10-1, new Element(mouseX/10, mouseY/10-1, elementSelectedChar));
+        grid->setElement(mouseX/10+1, mouseY/10-1, new Element(mouseX/10+1, mouseY/10-1, elementSelectedChar));
+
+        grid->setElement(mouseX/10-1, mouseY/10, new Element(mouseX/10-1, mouseY/10, elementSelectedChar));
+        grid->setElement(mouseX/10, mouseY/10, new Element(mouseX/10, mouseY/10, elementSelectedChar));
+        grid->setElement(mouseX/10+1, mouseY/10, new Element(mouseX/10+1, mouseY/10, elementSelectedChar));
+
+        grid->setElement(mouseX/10-1, mouseY/10+1, new Element(mouseX/10-1, mouseY/10+1, elementSelectedChar));
+        grid->setElement(mouseX/10, mouseY/10+1, new Element(mouseX/10, mouseY/10+1, elementSelectedChar));
+        grid->setElement(mouseX/10+1, mouseY/10+1, new Element(mouseX/10+1, mouseY/10+1, elementSelectedChar));
+    }
     player->update();
     grid->update();
     count++;
@@ -117,7 +185,7 @@ void Game::update() {
 void Game::render() {
     SDL_RenderClear(renderer);
     //SDL_RenderCopy(renderer, playerTexture, NULL, NULL);
-    player->render();
+    //player->render();
 
     grid->render(renderer);
     SDL_RenderPresent(renderer);
