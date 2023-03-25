@@ -11,9 +11,11 @@ public:
     Grid();
     ~Grid();
     void update();
+    void updateCell(int x, int y);
     void render(SDL_Renderer *renderer);
     Element* getElement(int x, int y);
     void setElement(int x, int y, Element *element);
     const int width, height;
     Cell** cellGrid;
+    int time;
 };

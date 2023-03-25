@@ -25,7 +25,9 @@ public:
     Grid *grid;
     static SDL_Event event;
     bool upPressed, downPressed, leftPressed, rightPressed;
+    bool mouseLeftPressed;
     int mouseX, mouseY;
+    int elementSelected;
     long int count = 0;
 private:
     bool isRunning;
