@@ -16,6 +16,7 @@ public:
     Element* getElement(int x, int y);
     void setElement(int x, int y, Element *element);
     const int width, height;
+    float cellWidthPixels, cellHeightPixels;
     Cell** cellGrid;
     int time;
 };
