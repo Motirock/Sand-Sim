@@ -55,7 +55,7 @@ void Game::init(const char *title, int screenX, int screenY, int screenWidth, in
  
     player = new Entity("res/gfx/ground_grass_1.png", renderer, 50, 50);
     //Creates grid
-    grid = new Grid(160, 90);
+    grid = new Grid(320, 180);
 }
 
 void Game::handleEvents() {
@@ -165,19 +165,19 @@ void Game::update() {
             default:
                 elementSelectedChar = '-';
         }
-        grid->setElement(mouseX/10-1, mouseY/10-1, new Element(mouseX/10-1, mouseY/10-1, elementSelectedChar));
-        grid->setElement(mouseX/10, mouseY/10-1, new Element(mouseX/10, mouseY/10-1, elementSelectedChar));
-        grid->setElement(mouseX/10+1, mouseY/10-1, new Element(mouseX/10+1, mouseY/10-1, elementSelectedChar));
+        
+        grid->setElement(mouseX/grid->cellWidthPixels-1, mouseY/grid->cellHeightPixels-1, new Element(mouseX/grid->cellWidthPixels-1, mouseY/grid->cellHeightPixels-1, elementSelectedChar));
+        grid->setElement(mouseX/grid->cellWidthPixels, mouseY/grid->cellHeightPixels-1, new Element(mouseX/grid->cellWidthPixels, mouseY/grid->cellHeightPixels-1, elementSelectedChar));
+        grid->setElement(mouseX/grid->cellWidthPixels+1, mouseY/grid->cellHeightPixels-1, new Element(mouseX/grid->cellWidthPixels+1, mouseY/grid->cellHeightPixels-1, elementSelectedChar));
 
-        grid->setElement(mouseX/10-1, mouseY/10, new Element(mouseX/10-1, mouseY/10, elementSelectedChar));
-        grid->setElement(mouseX/10, mouseY/10, new Element(mouseX/10, mouseY/10, elementSelectedChar));
-        grid->setElement(mouseX/10+1, mouseY/10, new Element(mouseX/10+1, mouseY/10, elementSelectedChar));
+        grid->setElement(mouseX/grid->cellWidthPixels-1, mouseY/grid->cellHeightPixels, new Element(mouseX/grid->cellWidthPixels-1, mouseY/grid->cellHeightPixels, elementSelectedChar));
+        grid->setElement(mouseX/grid->cellWidthPixels, mouseY/grid->cellHeightPixels, new Element(mouseX/grid->cellWidthPixels, mouseY/grid->cellHeightPixels, elementSelectedChar));
+        grid->setElement(mouseX/grid->cellWidthPixels+1, mouseY/grid->cellHeightPixels, new Element(mouseX/grid->cellWidthPixels+1, mouseY/grid->cellHeightPixels, elementSelectedChar));
 
-        grid->setElement(mouseX/10-1, mouseY/10+1, new Element(mouseX/10-1, mouseY/10+1, elementSelectedChar));
-        grid->setElement(mouseX/10, mouseY/10+1, new Element(mouseX/10, mouseY/10+1, elementSelectedChar));
-        grid->setElement(mouseX/10+1, mouseY/10+1, new Element(mouseX/10+1, mouseY/10+1, elementSelectedChar));
+        grid->setElement(mouseX/grid->cellWidthPixels-1, mouseY/grid->cellHeightPixels+1, new Element(mouseX/grid->cellWidthPixels-1, mouseY/grid->cellHeightPixels+1, elementSelectedChar));
+        grid->setElement(mouseX/grid->cellWidthPixels, mouseY/grid->cellHeightPixels+1, new Element(mouseX/grid->cellWidthPixels, mouseY/grid->cellHeightPixels+1, elementSelectedChar));
+        grid->setElement(mouseX/grid->cellWidthPixels+1, mouseY/grid->cellHeightPixels+1, new Element(mouseX/grid->cellWidthPixels+1, mouseY/grid->cellHeightPixels+1, elementSelectedChar));
     }
-    player->update();
     grid->update();
     count++;
 };

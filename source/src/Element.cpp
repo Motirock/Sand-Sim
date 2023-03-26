@@ -6,25 +6,37 @@ Element::Element(int xPosition, int yPosition, char characterID) : x(xPosition),
     colorRGB = new int[3];
     switch (characterID) {
         case '-':
-            type = EMPTY;
+            type = AIR;
+            state = EMPTY;
             colorRGB[0] = 16;
             colorRGB[1] = 16;
             colorRGB[2] = 16;
             break;
         case 's':
             type = STONE;
+            state = STATIC;
             colorRGB[0] = rand()%11+70;
             colorRGB[1] = rand()%11+70;
             colorRGB[2] = rand()%11+70;
             break;
         case 'S':
             type = SAND;
+            state = FALLING;
             colorRGB[0] = rand()%41+180;
             colorRGB[1] = rand()%41+180;
             colorRGB[2] = 0;
             break;
         case 'w':
             type = WATER;
+            state = LIQUID;
+            colorRGB[0] = 0;
+            colorRGB[1] = 0;
+            colorRGB[2] = rand()%11+215;
+            viscosity = 0.75;
+            break;
+        case '^':
+            type = STEAM;
+            state = LIQUID;
             colorRGB[0] = 0;
             colorRGB[1] = 0;
             colorRGB[2] = rand()%11+215;
@@ -36,7 +48,7 @@ Element::Element(int xPosition, int yPosition, char characterID) : x(xPosition),
 
 Element::Element(int xPosition, int yPosition) : x(xPosition), y(yPosition) {
     charID = '-';
-    type = EMPTY;
+    type = AIR;
     colorRGB = new int[3];
     colorRGB[0] = 16;
     colorRGB[1] = 16;
@@ -47,7 +59,7 @@ Element::Element() {
     x = 0;
     y = 0;
     charID = '-';
-    type = EMPTY;
+    type = AIR;
     colorRGB = new int[3];
     colorRGB[0] = 16;
     colorRGB[1] = 16;

@@ -33,5 +33,6 @@ Element* Cell::getElement() {
 }
 
 void Cell::setElement(Element *newElement) {
+    newElement->hasBeenUpdated = true;
     this->element = newElement;
 }
