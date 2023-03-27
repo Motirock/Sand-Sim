@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL2/SDL.h>
+#include <thread>
 
 #include "Cell.h"
 #include "Element.h"
@@ -11,11 +12,11 @@ public:
     Grid();
     ~Grid();
     void update();
-    void updateCell(int x, int y);
+    void updateCell(int x, int y, int randomNumber);
     void render(SDL_Renderer *renderer);
     Element* getElement(int x, int y);
     void setElement(int x, int y, Element *element);
-    const int width, height;
+    const int width, height, numThreads;
     float cellWidthPixels, cellHeightPixels;
     Cell** cellGrid;
     int time;
