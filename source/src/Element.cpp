@@ -34,12 +34,20 @@ Element::Element(int xPosition, int yPosition, char characterID) : x(xPosition),
             colorRGB[2] = rand()%11+215;
             viscosity = 0.75;
             break;
+         case 'l':
+            type = LAVA;
+            state = LIQUID;
+            colorRGB[0] = rand()%21+190;
+            colorRGB[1] = rand()%41+30;
+            colorRGB[2] = 0;
+            viscosity = 0.05;
+            break;
         case '^':
             type = STEAM;
-            state = LIQUID;
-            colorRGB[0] = 0;
-            colorRGB[1] = 0;
-            colorRGB[2] = rand()%11+215;
+            state = GAS;
+            colorRGB[0] = rand()%11+235;
+            colorRGB[1] = rand()%11+235;
+            colorRGB[2] = rand()%11+235;
             viscosity = 0.75;
             break;
             

@@ -5,6 +5,7 @@
 #include "Entity.h"
 #include "Game.h"
 #include "TextureManager.h"
+#include "Utils.hpp"
 
 Entity *player;
 SDL_Event Game::event;
@@ -162,11 +163,17 @@ void Game::update() {
             case 3:
                 elementSelectedChar = 'w';
                 break;
+            case 4:
+                elementSelectedChar = 'l';
+                break;
+            case 5:
+                elementSelectedChar = '^';
+                break;
             default:
                 elementSelectedChar = '-';
         }
         
-        grid->setElement(mouseX/grid->cellWidthPixels-1, mouseY/grid->cellHeightPixels-1, new Element(mouseX/grid->cellWidthPixels-1, mouseY/grid->cellHeightPixels-1, elementSelectedChar));
+        /*grid->setElement(mouseX/grid->cellWidthPixels-1, mouseY/grid->cellHeightPixels-1, new Element(mouseX/grid->cellWidthPixels-1, mouseY/grid->cellHeightPixels-1, elementSelectedChar));
         grid->setElement(mouseX/grid->cellWidthPixels, mouseY/grid->cellHeightPixels-1, new Element(mouseX/grid->cellWidthPixels, mouseY/grid->cellHeightPixels-1, elementSelectedChar));
         grid->setElement(mouseX/grid->cellWidthPixels+1, mouseY/grid->cellHeightPixels-1, new Element(mouseX/grid->cellWidthPixels+1, mouseY/grid->cellHeightPixels-1, elementSelectedChar));
 
@@ -176,7 +183,17 @@ void Game::update() {
 
         grid->setElement(mouseX/grid->cellWidthPixels-1, mouseY/grid->cellHeightPixels+1, new Element(mouseX/grid->cellWidthPixels-1, mouseY/grid->cellHeightPixels+1, elementSelectedChar));
         grid->setElement(mouseX/grid->cellWidthPixels, mouseY/grid->cellHeightPixels+1, new Element(mouseX/grid->cellWidthPixels, mouseY/grid->cellHeightPixels+1, elementSelectedChar));
-        grid->setElement(mouseX/grid->cellWidthPixels+1, mouseY/grid->cellHeightPixels+1, new Element(mouseX/grid->cellWidthPixels+1, mouseY/grid->cellHeightPixels+1, elementSelectedChar));
+        grid->setElement(mouseX/grid->cellWidthPixels+1, mouseY/grid->cellHeightPixels+1, new Element(mouseX/grid->cellWidthPixels+1, mouseY/grid->cellHeightPixels+1, elementSelectedChar));*/
+
+        int drawRadius = 5;
+        int** points = utils::getPointsInCircle((int) (mouseX/grid->cellWidthPixels), (int) (mouseY/grid->cellHeightPixels), drawRadius);
+        int size = 2*drawRadius+1;
+        for(int i = 0; i < size; i++) {
+            for(int j = 0; j < size*2; j += 2) {
+                if (points[i][j] >= 0)
+                    grid->setElement(points[i][j], points[i][j+1], new Element(points[i][j], points[i][j+1], elementSelectedChar));
+            }
+        }
     }
     grid->update();
     count++;
