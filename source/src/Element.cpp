@@ -1,58 +1,50 @@
 #include <stdlib.h>
+#include <iostream>
 
 #include "Element.h"
 
 Element::Element(int xPosition, int yPosition, char characterID) : x(xPosition), y(yPosition), charID(characterID) {
-    colorRGB = new int[3];
     switch (characterID) {
         case '-':
             type = AIR;
             state = EMPTY;
-            colorRGB[0] = 16;
-            colorRGB[1] = 16;
-            colorRGB[2] = 16;
+            colorID = 1;
             break;
         case 's':
             type = STONE;
             state = STATIC;
-            colorRGB[0] = rand()%11+70;
-            colorRGB[1] = rand()%11+70;
-            colorRGB[2] = rand()%11+70;
+            colorID = 101;
             break;
         case 'S':
             type = SAND;
             state = FALLING;
-            colorRGB[0] = rand()%41+180;
-            colorRGB[1] = rand()%41+180;
-            colorRGB[2] = 0;
+            colorID = 102;
             break;
         case 'w':
             type = WATER;
             state = LIQUID;
-            colorRGB[0] = 0;
-            colorRGB[1] = 0;
-            colorRGB[2] = rand()%11+215;
+            colorID = 103;
             viscosity = 0.75;
+            break;
+         case 'l':
+            type = LAVA;
+            state = LIQUID;
+            colorID = 104;
+            viscosity = 0.05;
             break;
         case '^':
             type = STEAM;
-            state = LIQUID;
-            colorRGB[0] = 0;
-            colorRGB[1] = 0;
-            colorRGB[2] = rand()%11+215;
+            state = GAS;
+            colorID = 105;
             viscosity = 0.75;
             break;
-            
     }
 }
 
 Element::Element(int xPosition, int yPosition) : x(xPosition), y(yPosition) {
     charID = '-';
     type = AIR;
-    colorRGB = new int[3];
-    colorRGB[0] = 16;
-    colorRGB[1] = 16;
-    colorRGB[2] = 16;
+    colorID = 1;
 }
 
 Element::Element() {
@@ -60,12 +52,8 @@ Element::Element() {
     y = 0;
     charID = '-';
     type = AIR;
-    colorRGB = new int[3];
-    colorRGB[0] = 16;
-    colorRGB[1] = 16;
-    colorRGB[2] = 16;
+    colorID = 1;
 }
 
 Element::~Element() {
-    free(colorRGB);
 }
