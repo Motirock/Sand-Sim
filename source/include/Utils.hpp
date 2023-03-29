@@ -10,7 +10,7 @@ namespace utils {
         return SDL_GetTicks()*0.001f;
     }
 
-    inline float hireTimeInMilliseconds() {
+    inline long hireTimeInMilliseconds() {
          return SDL_GetTicks();
     }
 

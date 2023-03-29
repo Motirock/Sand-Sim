@@ -2,8 +2,7 @@
 
 #include "Element.h"
 
-class Cell {
-public:
+struct Cell {
     Cell(int xPosition, int yPosition, char elementCharacterID);
     Cell(int xPosition, int yPosition);
     Cell(char elementCharacterID);

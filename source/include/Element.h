@@ -2,8 +2,7 @@
 
 #include <SDL2/SDL.h>
 
-class Element { 
-public:
+struct Element { 
     Element(int xPosition, int yPosition, char characterID);
     Element(int xPosition, int yPosition);
     Element();
