@@ -17,8 +17,15 @@
 #include "Utils.hpp"
 #include "Game.h"
 #include "Cell.h"
+#include "ThreadPool.hpp"
 
 Game *game = nullptr;
+
+ThreadPool threadPool(1);
+
+void checkInput() {
+	game->handleEvents();
+}
 
 void updateGame() {
 	game->update();
@@ -38,34 +45,30 @@ const float rendersIntervalMS = 1000.0f/rendersPerSecond;
 long inputChecks = 0;
 long updates = 0;
 long renders = 0;
-std::thread *updateThread;
 while (game->checkIfRunning()) {	
-	float currentTimeMS = utils::hireTimeInMilliseconds();
+	long currentTimeMS = utils::hireTimeInMilliseconds();
 
 	bool shouldCheckInput = inputChecks*inputChecksIntervalMS <= currentTimeMS;
-	bool shouldUpdate = /*currentTimeMS > 3000Three Second buffer && */updates*updatesIntervalMS <= currentTimeMS; 
+	bool shouldUpdate = updates*updatesIntervalMS <= currentTimeMS; 
 	bool shouldRender = renders*rendersIntervalMS <= currentTimeMS;
 
 	if (shouldCheckInput) {
+		//threadPool.doJob(std::bind(checkInput));
 		game->handleEvents();
 		inputChecks++;
 	}
-	if (shouldUpdate && shouldRender) {
-		updateThread = new std::thread(updateGame);
-		game->render();
-		updateThread->join();
-		updates++;
-		renders++;
-	}
-	else if (shouldUpdate) {
-		updateThread = new std::thread(updateGame);
-		updateThread->join();
+	if (shouldUpdate) {
+		threadPool.doJob(std::bind(updateGame));
 		updates++;
 	}
-	else if (shouldRender) {
+	if (shouldRender) {
 		game->render();
 		renders++;
 	}
+
+	//If needed to render two frames, still only renders once
+	if (shouldRender && (renders+5)*rendersIntervalMS <= currentTimeMS)
+		renders++;
 
 	SDL_Delay(0.001);
 }
@@ -75,28 +78,13 @@ game->clean();
 return 0;
 }
 
-/*
-ID: 1073752066   Could not get rect group because the colorID was invalid
- ID: 1073752066   Could not get rect group because the colorID was invalid
- ID: 1073752066 ID: 895944096   Could not get rect group because the colorID was invalid ID:  ID:  ID: 8959440961073752066
-      895944096 ID:     ID:  ID: 1073752066Could not get rect group because the colorID was invalid
-   Could not get rect
-    group because the colorID was invalid
-1073752066   895944096Could not get rect group because the colorID was invalid   Could not get rect group because the colorID was invalidCould not get rect group because the colorID was invalid
-Could not get rect group because the colorID was invalid
 
-Could not get rect group because the colorID was invalid
-*/
 
-/*
-ID:  ID: 1073752066   Could not get rect group because the colorID was invalid
- ID: 1073752066 ID:    Could not get rect group because the colorID was invalid
- ID: 1073752066   Could not get rect group because the colorID was invalid
- ID: 1073752066   Could not get rect group because the colorID was invalid
- ID: 1073752066   1073752066   Could not get rect group because the colorID was invalid
- ID: 1073752066    ID: 1073752066   Could not get rect group because the colorID was invalid
- ID: 1073752066   Could not get rect group because the colorID was invalid
-Could not get rect group because the colorID was invalid
-1073752066   Could not get rect group because the colorID was invalid
-Could not get rect group because the colorID was invalid
-*/
+
+
+
+
+
+
+
+

@@ -2,15 +2,23 @@
 #include <stdlib.h>
 #include <thread>
 #include <vector>
+#include <mutex>
+#include <condition_variable>
+#include <queue>
+#include <stack>
+#include <functional>
 
 #include "Cell.h"
 #include "Element.h"
 #include "Grid.h"
 #include "Utils.hpp"
+#include "ThreadPool.hpp"
+
+ThreadPool gridThreadPool(10);
 
 void updateRegion(Grid *grid, int ID) {
-    int leftLimit = (int) (grid->width/grid->numThreads*ID);
-    int rightLimit = (int) (grid->width/grid->numThreads*(ID+1));
+    int leftLimit = (int) (grid->width/grid->numTasks*ID);
+    int rightLimit = (int) (grid->width/grid->numTasks*(ID+1));
 
     for (int c = leftLimit; c < rightLimit; c++) {
         for (int r = 0; r < grid->height; r++) {
@@ -56,7 +64,45 @@ void updateRegion(Grid *grid, int ID) {
     }
 }
 
-Grid::Grid(int gridWidth, int gridHeight) : width(gridWidth), height(gridHeight), numThreads(5) {
+void prepareRegion(Grid *grid, int ID, std::vector<SDL_Rect*> *rects101, std::vector<SDL_Rect*> *rects102, std::vector<SDL_Rect*> *rects103, std::vector<SDL_Rect*> *rects104, std::vector<SDL_Rect*> *rects105) {
+    int leftLimit = (int) (grid->width/grid->numThreads*ID);
+    int rightLimit = (int) (grid->width/grid->numThreads*(ID+1));
+
+    for (int col = leftLimit; col < rightLimit; col++) {
+        for (int row = 0; row < grid->height; row++) {
+            if (grid->cellGrid[col][row].element->type != 0) {
+                SDL_Rect tempRect = SDL_Rect();
+                tempRect.w = grid->cellWidthPixels;
+                tempRect.h = grid->cellHeightPixels;
+                tempRect.x = col*grid->cellWidthPixels;
+                tempRect.y = row*grid->cellHeightPixels;
+                //if (grid->time%64 == ID) {
+                //    std::cout << "X: " << tempRect.x << " Y: " << tempRect.y << " W: " << tempRect.w << " H: " << tempRect.h << std::endl;
+                //}
+                switch (grid->cellGrid[col][row].element->colorID) {
+                    case 101:
+                        rects101->push_back(&tempRect);
+                        //std::cout << "B";
+                        break;
+                    case 102:
+                        rects102->push_back(&tempRect);
+                        break;
+                    case 103:
+                        rects103->push_back(&tempRect);
+                        break;
+                    case 104:
+                        rects104->push_back(&tempRect);
+                        break;
+                    case 105:
+                        rects105->push_back(&tempRect);
+                        break;
+                }
+            }
+        }
+    }
+}
+
+Grid::Grid(int gridWidth, int gridHeight) : width(gridWidth), height(gridHeight), numThreads(10), numTasks(64) {
     time = 0;
     cellWidthPixels = 1600.0/width;
     cellHeightPixels = 900.0/height;
@@ -73,7 +119,7 @@ Grid::Grid(int gridWidth, int gridHeight) : width(gridWidth), height(gridHeight)
     std::cout << "width: " << width << " height: " << height << std::endl;
 }
 
-Grid::Grid() : width(100), height(100), numThreads(10) {
+Grid::Grid() : width(100), height(100), numThreads(10), numTasks(64) {
     time = 0;
     cellWidthPixels = 1600.0/width;
     cellHeightPixels = 900.0/height;
@@ -93,12 +139,8 @@ void Grid::update() {
     int startTimeMS = SDL_GetTicks();
     time++;
 
-    std::thread threads[numThreads];
-    for (int i  = 0; i < numThreads; i++) {
-        threads[i] = std::thread(updateRegion, this, i);
-    }
-    for (int i  = 0; i < numThreads; i++) {
-        threads[i].join();
+    for (int i  = 0; i < numTasks; i++) {
+        gridThreadPool.doJob(std::bind(updateRegion, this, i));
     }
 
     int endTimeMS = SDL_GetTicks()-startTimeMS;
@@ -780,12 +822,12 @@ void Grid::render(SDL_Renderer *renderer) {
     std::vector<SDL_Rect> rects104;
     std::vector<SDL_Rect> rects105;
 
+    SDL_Rect tempRect = SDL_Rect();
+    tempRect.w = cellWidthPixels;
+    tempRect.h = cellHeightPixels;
     for (int col = 0; col < width; col++) {
         for (int row = 0; row < height; row++) {
             if (cellGrid[col][row].element->type != 0) {
-                SDL_Rect tempRect = SDL_Rect();
-                tempRect.w = cellWidthPixels;
-                tempRect.h = cellHeightPixels;
                 tempRect.x = col*cellWidthPixels;
                 tempRect.y = row*cellHeightPixels;
                 switch (cellGrid[col][row].element->colorID) {
@@ -810,23 +852,30 @@ void Grid::render(SDL_Renderer *renderer) {
     }
 
     SDL_SetRenderDrawColor(renderer, utils::COLOR_101[0], utils::COLOR_101[1], utils::COLOR_101[2], utils::COLOR_101[3]);
-    for (int i = 0; i < (int) rects101.size(); i++) {
+    int rects101Size = rects101.size();
+    for (int i = 0; i < rects101Size; i++) {
         SDL_RenderFillRect(renderer, &rects101[i]);
     }
+    int rects102Size = rects102.size();
     SDL_SetRenderDrawColor(renderer, utils::COLOR_102[0], utils::COLOR_102[1], utils::COLOR_102[2], utils::COLOR_102[3]);
-    for (int i = 0; i < (int) rects102.size(); i++) {
+    for (int i = 0; i < rects102Size; i++) {
         SDL_RenderFillRect(renderer, &rects102[i]);
     }
+    int rects103Size = rects103.size();
     SDL_SetRenderDrawColor(renderer, utils::COLOR_103[0], utils::COLOR_103[1], utils::COLOR_103[2], utils::COLOR_103[3]);
-    for (int i = 0; i < (int) rects103.size(); i++) {
+    for (int i = 0; i < rects103Size; i++) {
         SDL_RenderFillRect(renderer, &rects103[i]);
     }
+    int rects104Size = rects104.size();
     SDL_SetRenderDrawColor(renderer, utils::COLOR_104[0], utils::COLOR_104[1], utils::COLOR_104[2], utils::COLOR_104[3]);
-    for (int i = 0; i < (int) rects104.size(); i++)
+    for (int i = 0; i < rects104Size; i++) {
         SDL_RenderFillRect(renderer, &rects104[i]);
+    }
+    int rects105Size = rects105.size();
     SDL_SetRenderDrawColor(renderer, utils::COLOR_105[0], utils::COLOR_105[1], utils::COLOR_105[2], utils::COLOR_105[3]);
-    for (int i = 0; i < (int) rects105.size(); i++)
+    for (int i = 0; i < rects105Size; i++) {
         SDL_RenderFillRect(renderer, &rects105[i]);
+    }
         
     int endTimeMS = SDL_GetTicks()-startTimeMS;
 

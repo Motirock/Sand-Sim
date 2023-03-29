@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 
 #include "Cell.h"
 #include "Element.h"
@@ -6,9 +7,12 @@
 #include "Game.h"
 #include "TextureManager.h"
 #include "Utils.hpp"
+#include "ThreadPool.hpp"
 
 Entity *player;
 SDL_Event Game::event;
+
+ThreadPool gameThreadPool(10);
 
 Game::Game() {
     std::cout << "Game object created" << std::endl;
@@ -152,6 +156,10 @@ void Game::handleEvents() {
     }
 };
 
+void updateGrid(Grid* grid) {
+    grid->update();
+}
+
 void Game::update() {
     if (mouseLeftPressed) {
         char elementSelectedChar;
@@ -186,8 +194,9 @@ void Game::update() {
         }
     }
     grid->update();
+    //gameThreadPool.doJob(std::bind(updateGrid, grid));
     count++;
-};
+}
 
 void Game::render() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
