@@ -5,6 +5,7 @@
 #include "Entity.h"
 #include "Game.h"
 #include "TextureManager.h"
+#include "Utils.hpp"
 
 Entity *player;
 SDL_Event Game::event;
@@ -36,7 +37,7 @@ void Game::init(const char *title, int screenX, int screenY, int screenWidth, in
         }
 
         renderer = SDL_CreateRenderer(window, -1, 0);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         if (renderer)
             std::cout << "Successful renderer creation" << std::endl;
         else {
@@ -52,7 +53,7 @@ void Game::init(const char *title, int screenX, int screenY, int screenWidth, in
         isRunning = false;
         return;
     }
- 
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND); 
     player = new Entity("res/gfx/ground_grass_1.png", renderer, 50, 50);
     //Creates grid
     grid = new Grid(320, 180);
@@ -128,6 +129,9 @@ void Game::handleEvents() {
                         break;
                 }
                 break;
+            case SDL_MOUSEMOTION:
+                mouseX = event.motion.x;
+                mouseY = event.motion.y;
             case SDL_MOUSEBUTTONDOWN:
                 switch (event.button.button) {
                     case SDL_BUTTON_LEFT:
@@ -149,7 +153,6 @@ void Game::handleEvents() {
 };
 
 void Game::update() {
-    SDL_GetMouseState(&mouseX, &mouseY);
     if (mouseLeftPressed) {
         char elementSelectedChar;
         switch (elementSelected) {
@@ -162,32 +165,38 @@ void Game::update() {
             case 3:
                 elementSelectedChar = 'w';
                 break;
+            case 4:
+                elementSelectedChar = 'l';
+                break;
+            case 5:
+                elementSelectedChar = '^';
+                break;
             default:
                 elementSelectedChar = '-';
         }
-        
-        grid->setElement(mouseX/grid->cellWidthPixels-1, mouseY/grid->cellHeightPixels-1, new Element(mouseX/grid->cellWidthPixels-1, mouseY/grid->cellHeightPixels-1, elementSelectedChar));
-        grid->setElement(mouseX/grid->cellWidthPixels, mouseY/grid->cellHeightPixels-1, new Element(mouseX/grid->cellWidthPixels, mouseY/grid->cellHeightPixels-1, elementSelectedChar));
-        grid->setElement(mouseX/grid->cellWidthPixels+1, mouseY/grid->cellHeightPixels-1, new Element(mouseX/grid->cellWidthPixels+1, mouseY/grid->cellHeightPixels-1, elementSelectedChar));
 
-        grid->setElement(mouseX/grid->cellWidthPixels-1, mouseY/grid->cellHeightPixels, new Element(mouseX/grid->cellWidthPixels-1, mouseY/grid->cellHeightPixels, elementSelectedChar));
-        grid->setElement(mouseX/grid->cellWidthPixels, mouseY/grid->cellHeightPixels, new Element(mouseX/grid->cellWidthPixels, mouseY/grid->cellHeightPixels, elementSelectedChar));
-        grid->setElement(mouseX/grid->cellWidthPixels+1, mouseY/grid->cellHeightPixels, new Element(mouseX/grid->cellWidthPixels+1, mouseY/grid->cellHeightPixels, elementSelectedChar));
-
-        grid->setElement(mouseX/grid->cellWidthPixels-1, mouseY/grid->cellHeightPixels+1, new Element(mouseX/grid->cellWidthPixels-1, mouseY/grid->cellHeightPixels+1, elementSelectedChar));
-        grid->setElement(mouseX/grid->cellWidthPixels, mouseY/grid->cellHeightPixels+1, new Element(mouseX/grid->cellWidthPixels, mouseY/grid->cellHeightPixels+1, elementSelectedChar));
-        grid->setElement(mouseX/grid->cellWidthPixels+1, mouseY/grid->cellHeightPixels+1, new Element(mouseX/grid->cellWidthPixels+1, mouseY/grid->cellHeightPixels+1, elementSelectedChar));
+        int drawRadius = 4;
+        int** points = utils::getPointsInCircle((int) (mouseX/grid->cellWidthPixels), (int) (mouseY/grid->cellHeightPixels), drawRadius);
+        int size = 2*drawRadius+1;
+        for(int i = 0; i < size; i++) {
+            for(int j = 0; j < size*2; j += 2) {
+                if (points[i][j] >= 0)
+                    grid->setElement(points[i][j], points[i][j+1], new Element(points[i][j], points[i][j+1], elementSelectedChar));
+            }
+        }
     }
     grid->update();
     count++;
 };
 
 void Game::render() {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
     //SDL_RenderCopy(renderer, playerTexture, NULL, NULL);
     //player->render();
 
     grid->render(renderer);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderPresent(renderer);
 };
 
