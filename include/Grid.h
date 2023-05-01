@@ -19,9 +19,9 @@ public:
     Grid(int gridWidth, int gridHeight);
     Grid();
 
-    void update();
+    void update(int playerX, int playerY);
     void updateCell(int x, int y, int randomNumber);
-    void draw(Shader& shader, int playerX, int playerY);
+    void draw(Shader& shader, float playerX, float playerY);
     Element* getElement(int x, int y);
     void setElement(int x, int y, Element *element);
     const int width, height, numThreads, numTasks;
@@ -31,9 +31,11 @@ public:
     bool running;
     int visibleWidth = 321, visibleHeight = 181;
     int visibleTotal = visibleWidth*visibleHeight;
+    glm::vec2 lightPositions[60000];
     int colors[58101];
     unsigned int vao, vbo;
     unsigned int instanceVBO;
+    int simulatedWidth = 1280, simulatedHeight = 720;
 };
 
 #endif

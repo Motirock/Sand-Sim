@@ -15,14 +15,14 @@ int main() {
 
 	//Game loop
 	long inputChecks = 0, updates = 0, draws = 0;
-	float inputCheckDelay = 1.0f/50.0f, updateDelay = 1.0f/50.0f, drawDelay = 1.0f/60.0f;
+	float inputCheckDelay = 1.0f/60.0f, updateDelay = 1.0f/60.0f, drawDelay = 1.0f/50.0f;
 	int thisSecond = 1, updatesThisSecond = 0, drawsThisSecond = 0;
 	while (!game->shouldClose()) {
 		double crntTime = glfwGetTime();
 
 		if (crntTime >= inputChecks*inputCheckDelay) {
 			inputChecks++;
-			game->input();
+			game->handleInput();
 		}
 
 		if (crntTime >= updates*updateDelay) {

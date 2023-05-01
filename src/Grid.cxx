@@ -2,9 +2,40 @@
 
 ThreadPool gridThreadPool(10);
 
-void updateRegion(Grid *grid, int ID) {
-    int leftLimit = (int) (grid->width/grid->numTasks*ID);
-    int rightLimit = (int) (grid->width/grid->numTasks*(ID+1));
+void updateRegion(Grid *grid, int ID, int playerX, int playerY) {
+    int leftLimit = 0;
+    int rightLimit = 0;
+    //Visible portion
+    if (ID < 16) {
+        leftLimit = (int) (playerX-grid->visibleWidth/2+grid->simulatedWidth/grid->numTasks*ID);
+        rightLimit = (int) (playerX-grid->visibleWidth/2+grid->simulatedWidth/grid->numTasks*(ID+1));
+    }
+    //Portion left of visible
+    else if (ID < 40) {
+        leftLimit = (int) (playerX-grid->simulatedWidth/2+grid->simulatedWidth/grid->numTasks*(ID-16));
+        rightLimit = (int) (playerX-grid->simulatedWidth/2+grid->simulatedWidth/grid->numTasks*(ID-15));
+    }
+    //Portion right of visible
+    else {
+        leftLimit = (int) (playerX-grid->simulatedWidth/2+grid->simulatedWidth/grid->numTasks*ID);
+        rightLimit = (int) (playerX-grid->simulatedWidth/2+grid->simulatedWidth/grid->numTasks*(ID+1));
+    }
+
+    if (rightLimit < 0) {
+        leftLimit = 0;
+        rightLimit = 0;
+    }
+    else if (leftLimit < 0)
+        leftLimit = 0;
+    if (leftLimit >= grid->width) {
+        leftLimit = 0;
+        rightLimit = 0;
+    }
+    else if (rightLimit >= grid->width)
+        rightLimit = grid->width;
+    
+    //if (ID == grid->time%64)
+    //std::cout << "ID: " << ID << "\tLEFT LIMIT: " << leftLimit << "  \tRIGHT LIMIT: " << rightLimit << "\n";
 
     for (int c = leftLimit; c < rightLimit; c++) {
         for (int r = 0; r < grid->height; r++) {
@@ -764,25 +795,36 @@ void Grid::updateCell(int x, int y, int randomNumber) {
     }
 }
 
-void Grid::update() {
+void Grid::update(int playerX, int playerY) {
     time++;
 
     for (int i  = 0; i < numTasks; i++) {
-        gridThreadPool.doJob(std::bind(updateRegion, this, i));
+        gridThreadPool.doJob(std::bind(updateRegion, this, i, playerX, playerY));
     }
 }
 
-void Grid::draw(Shader& shader, int playerX, int playerY) {
-	//Bind shader to be able to access uniforms
-    int index = 0;
+void Grid::draw(Shader& shader, float playerX, float playerY) {
+    //Offset for smooth movement
+    glUniform2f(glGetUniformLocation(shader.ID, "playerOffset"), playerX-((int) playerX), playerY-((int) playerY));
+
+    playerX = (int) playerX;
+    playerY = (int) playerY;
+    int colorIndex = 0;
+    int lightIndex = 0;
     for (int row = playerY+visibleHeight/2; row >= playerY-visibleHeight/2; row--) {
         for (int col = playerX-visibleWidth/2; col <= playerX+visibleWidth/2; col++) {
-            if (col >= 0 && col < width && row >= 0 && row < height)
-                colors[index++] = cellGrid[col][row].element->colorID;
+            if (col >= 0 && col < width && row >= 0 && row < height) {
+                colors[colorIndex++] = cellGrid[col][row].element->colorID;
+                lightPositions[lightIndex++] = glm::vec2(col, row);
+            }
             else
-                colors[index++] = -1;
+                colors[colorIndex++] = -1;
         }
     }
+    //std::cout << "XOFFSET: " <<   playerX-((int) playerX) << "\tYOFFSET: " << playerY-((int) playerY) << "\tRANGE: " << playerY+visibleHeight/2.0 " to " << 
+
+    //Light Positions
+    //glUniform2fv(glGetUniformLocation(shader.ID, "lightPositions"), lightPositions, );
 
 	shader.activateShader();
     glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);

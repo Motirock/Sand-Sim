@@ -11,6 +11,8 @@
 #include "Grid.h"
 #include "ShaderClass.h"
 #include "Utils.hxx"
+#include "Input.h"
+#include "Player.h"
 
 class Game {
 public:
@@ -18,13 +20,12 @@ public:
     ~Game();
 
     int init(int screenWidth, int screenHeight, const char *windowName, bool fullscreen);
-    void input();
+    void handleInput();
     void update();
     void draw();
     void clean();
     bool shouldClose();
 
-    int playerX = 0, playerY = 0;
     GLFWwindow *window = nullptr;
 private:
     Grid *grid = nullptr;
@@ -34,6 +35,9 @@ private:
 
     char selectedElement = 'S';
     bool paused = false;
+    Input input;
+
+    Player player;
 
     unsigned int MSAASamples = 8;
 };
